@@ -29,7 +29,7 @@ jobs:
 
     - name: Sign AAB
       run: |
-        jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore /home/shruti/codepush/android/app/your_key_name.keystore -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} -signedjar app-release-signed.aab app-release.aab alias_name
+        jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore android/app/your_key_name.keystore -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} -signedjar app-release-signed.aab app-release.aab alias_name
       working-directory: android/app/build/outputs/bundle/release  
 
     - name: Zipalign AAB
