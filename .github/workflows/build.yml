@@ -24,8 +24,8 @@ jobs:
 
     - name: Build Android App Bundle
       run: |        
-          chmod +x gradlew
-          ./gradlew bundleRelease 
+          ./gradlew bundleRelease
+      working-directory: android 
 
     - name: Sign AAB
       run: |
