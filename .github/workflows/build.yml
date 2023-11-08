@@ -1,0 +1,42 @@
+name: Build and Sign AAB
+
+on:
+  push:
+    branches:
+      - master  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+          node-version: 18
+
+    - name: Build AAB
+      run: |
+        ./gradlew bundleRelease
+      working-directory: android  
+
+    - name: Sign AAB
+      run: |
+        jarsigner -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keystore your-keystore.jks -signedjar app-release-unsigned.apk app-release-unsigned-aligned.apk key-alias
+      working-directory: android/app/build/outputs/bundle/release  
+
+    - name: Zipalign AAB
+      run: |
+        $ANDROID_HOME/build-tools/32.0.0/zipalign -v -p 4 app-release-unsigned.apk app-release-unsigned-aligned.apk
+      env:
+        ANDROID_HOME: ${{ runner.workspace }}/android/sdk  
+      working-directory: android/app/build/outputs/bundle/release  
+
+    - name: Upload AAB artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: signed-aab
+        path: android/app/build/outputs/bundle/release/app-release-unsigned-aligned.apk  
