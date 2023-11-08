@@ -23,14 +23,18 @@ jobs:
           yarn install
 
     - name: Build Android App Bundle
-      run: |        
-          ./gradlew bundleRelease
-      working-directory: android 
-
-    - name: Sign AAB
       run: |
-        jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore android/app/your_key_name.keystore -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} -signedjar app-release-signed.aab app-release.aab alias_name
-      working-directory: android/app/build/outputs/bundle/release  
+        cd android && ./gradlew bundleRelease --no-daemon
+
+    - name: Sign App Bundle
+      id: sign_app
+      uses: r0adkll/sign-android-release@v1
+      with:
+        releaseDirectory: android/app/build/outputs/bundle/release
+        signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
+        alias: ${{ secrets.ANDROID_SIGNING_ALIAS }}
+        keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEY_PASSWORD }}
 
     - name: Upload AAB artifact
       uses: actions/upload-artifact@v2
