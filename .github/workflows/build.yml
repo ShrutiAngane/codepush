@@ -23,22 +23,13 @@ jobs:
           yarn install
 
     - name: Build Android App Bundle
-      run: |
-          npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
-          cd android
+      run: |        
           chmod +x gradlew
           ./gradlew bundleRelease 
 
     - name: Sign AAB
       run: |
         jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore android/app/your_key_name.keystore -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} -signedjar app-release-signed.aab app-release.aab alias_name
-      working-directory: android/app/build/outputs/bundle/release  
-
-    - name: Zipalign AAB
-      run: |
-        $ANDROID_HOME/build-tools/32.0.0/zipalign -v -p 4 app-release-unsigned.apk app-release-unsigned-aligned.apk
-      env:
-        ANDROID_HOME: ${{ runner.workspace }}/android/sdk  
       working-directory: android/app/build/outputs/bundle/release  
 
     - name: Upload AAB artifact
