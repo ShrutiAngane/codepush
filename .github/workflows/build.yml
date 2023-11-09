@@ -26,18 +26,14 @@ jobs:
       run: |
         cd android && ./gradlew bundleRelease --no-daemon
 
-    - name: Sign App Bundle
-      id: sign_app
-      uses: r0adkll/sign-android-release@v1
-      with:
-        releaseDirectory: android/app/build/outputs/bundle/release
-        signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
-        alias: ${{ secrets.ANDROID_SIGNING_ALIAS }}
-        keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-        keyPassword: ${{ secrets.KEY_PASSWORD }}
-
-    - name: Upload AAB artifact
+    - name: Get AAB File Path
+      run: |
+        echo "::set-output name=aab-path::$(find . -name '*.aab')"
+      shell: bash
+      id: get-aab-path
+      
+    - name: Upload AAB as Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: signed-aab
-        path: android/app/build/outputs/bundle/release/app-release-unsigned-aligned.apk  
+        name: app-release
+        path: ${{ steps.get-aab-path.outputs.aab-path }} 
