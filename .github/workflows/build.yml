@@ -1,0 +1,39 @@
+name: Build and Sign AAB
+
+on:
+  push:
+    branches:
+      - master  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+          node-version: 18
+
+    - name: Install dependencies
+      run: |
+          yarn install
+
+    - name: Build Android App Bundle
+      run: |
+        cd android && ./gradlew bundleRelease --no-daemon
+
+    - name: Get AAB File Path
+      run: |
+        echo "::set-output name=aab-path::$(find . -name '*.aab')"
+      shell: bash
+      id: get-aab-path
+      
+    - name: Upload AAB as Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-release
+        path: android/app/build/outputs/bundle/release/app-release.aab
